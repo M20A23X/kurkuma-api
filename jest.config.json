@@ -1,0 +1,30 @@
+{
+  "rootDir": ".",
+  "moduleDirectories": [
+    "node_modules/",
+    "src/"
+  ],
+  "moduleFileExtensions": [
+    "ts",
+    "js"
+  ],
+  "moduleNameMapper": {
+    "^uuid$": "uuid",
+    "^typeorm$": "typeorm",
+    "^#shared/(.+)": "<rootDir>/../shared/dist/src/$1",
+    "^#/(.+)": "<rootDir>/src/$1"
+  },
+  "testRegex": ".*\\.(e2e-)?spec\\.tsx?$",
+  "transform": {
+    "^.+\\.ts$": "ts-jest"
+  },
+  "collectCoverageFrom": [
+    "src/**/*.ts"
+  ],
+  "coverageDirectory": "coverage/",
+  "testEnvironment": "node",
+  "setupFiles": [
+    "dotenv/config"
+  ],
+  "verbose": true
+}
