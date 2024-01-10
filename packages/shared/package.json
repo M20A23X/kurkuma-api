@@ -1,0 +1,22 @@
+{
+  "name": "shared",
+  "version": "0.0.1",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc --build && tsc-alias",
+    "format": "prettier --write src/",
+    "lint": "eslint src/",
+    "lint:fix": "eslint --fix src/",
+    "pre-commit": "lint-staged",
+    "start:dev": "tsc-watch --build --onSuccess \"tsc-alias\""
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.3.0",
+    "@nestjs/jwt": "^10.2.0",
+    "express": "^4.18.2",
+    "mysql2": "^3.7.0",
+    "reflect-metadata": "^0.2.1",
+    "regex-to-strings": "^2.1.0"
+  }
+}
