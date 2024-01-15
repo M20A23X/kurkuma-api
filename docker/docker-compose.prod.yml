@@ -1,0 +1,17 @@
+version: '3.4'
+networks:
+  kurkuma-network:
+    external: true
+
+services:
+  cdn:
+    extends:
+      file: docker-compose.base.yml
+      service: cdn
+    build:
+      dockerfile: docker/configs/cdn/Dockerfile.prod
+    environment:
+      NODE_ENV: prod
+    image: ${DOCKER_PREFIX}:cdn
+    container_name: cdn
+    command: node index.js
