@@ -1,0 +1,12 @@
+version: '3.4'
+networks:
+  kurkuma-network:
+    external: true
+
+services:
+  database:
+    extends:
+      file: docker-compose.base.yml
+      service: database
+    image: ${DOCKER_PREFIX}:database
+    container_name: database-test
