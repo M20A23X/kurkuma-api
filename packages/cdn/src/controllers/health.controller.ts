@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, HttpStatus } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import {
     DiskHealthIndicator,
@@ -12,13 +12,8 @@ import {
 
 import { PromiseRes } from '#shared/types';
 
-import {
-    HEALTH_DISK_THRESHOLD_PERCENT,
-    LOCALHOST_URL,
-    HEALTH_MEM_HEAP_THRESHOLD,
-    HEALTH_MEM_RSS_THRESHOLD
-} from '#shared/static';
-import { CDN_PORT, HEALTH_ROUTE } from '#/static';
+import { SHARED } from '#shared/static';
+import { CDN } from '#/static';
 
 export interface IHealthController {
     get(): PromiseRes<string>;
@@ -40,7 +35,7 @@ export class HealthController implements IHealthController {
         return { message: 'Check', payload: 'payload' };
     }
 
-    @Get(HEALTH_ROUTE)
+    @Get(CDN.healthRoute)
     @ApiOperation({ summary: 'Check CDN health' })
     @HealthCheck()
     async getCheckHealth(): PromiseRes<HealthCheckResult> {
@@ -50,28 +45,28 @@ export class HealthController implements IHealthController {
                     () =>
                         this._httpIndicator.pingCheck(
                             'ping',
-                            `${LOCALHOST_URL}:${CDN_PORT}/`
+                            `${SHARED.localhostUrl}:${CDN.port}/`
                         ),
                     () =>
                         this._httpIndicator.responseCheck(
                             'response',
-                            `${LOCALHOST_URL}:${CDN_PORT}/`,
+                            `${SHARED.localhostUrl}:${CDN.port}/`,
                             (response) => response.status === HttpStatus.OK
                         ),
                     () =>
                         this._diskIndicator.checkStorage('storage', {
                             path: path.parse(process.cwd()).root,
-                            thresholdPercent: HEALTH_DISK_THRESHOLD_PERCENT
+                            thresholdPercent: SHARED.health.diskThresholdPercent
                         }),
                     () =>
                         this._memoryIndicator.checkRSS(
                             'memory',
-                            HEALTH_MEM_RSS_THRESHOLD
+                            SHARED.health.memoryRSSThreshold
                         ),
                     () =>
                         this._memoryIndicator.checkHeap(
                             'memory',
-                            HEALTH_MEM_HEAP_THRESHOLD
+                            SHARED.health.diskThresholdPercent
                         )
                 ]);
             return {

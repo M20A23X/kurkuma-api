@@ -1,5 +1,5 @@
 import * as http from 'http';
-import { LOCALHOST_URL } from '#shared/static';
-import { CDN_PORT, HEALTH_ROUTE } from '#/static';
+import { SHARED } from '#shared/static';
+import { CDN } from '#/static';
 
-http.get(`${LOCALHOST_URL}:${CDN_PORT}${HEALTH_ROUTE}`);
+http.get(`${SHARED.localhostUrl}:${CDN.port}${CDN.healthRoute}`);
