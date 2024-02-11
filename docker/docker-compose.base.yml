@@ -1,0 +1,17 @@
+version: '3.4'
+services:
+  healthy-studio:
+    build:
+      context: ../
+      args:
+        HEALTHY_STUDIO_API_PORT: ${HEALTHY_STUDIO_API_PORT}
+    restart: always
+    environment:
+      HEALTHY_STUDIO_API_HOST_HTTP: ${HEALTHY_STUDIO_API_HOST_HTTP}
+    ports:
+      - ${HEALTHY_STUDIO_API_PORT}:${HEALTHY_STUDIO_API_PORT}
+    networks:
+      kurkuma-network:
+        ipv4_address: ${HEALTHY_STUDIO_API_IP}
+    profiles:
+      - healthy-studio

@@ -1,0 +1,17 @@
+version: '3.4'
+networks:
+  kurkuma-network:
+    external: true
+
+services:
+  healthy-studio:
+    extends:
+      file: docker-compose.base.yml
+      service: healthy-studio
+    build:
+      dockerfile: docker/configs/healthy-studio/Dockerfile.prod
+    environment:
+      NODE_ENV: prod
+    image: ${DOCKER_PREFIX}:healthy-studio
+    container_name: healthy-studio
+    command: node index.js

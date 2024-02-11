@@ -1,0 +1,44 @@
+FROM node:18.17.1 as base
+WORKDIR /usr/src/app/
+
+RUN --mount=type=cache,target=~/AppData/Local/Yarn/Cache/v4 \
+    --mount=type=bind,source=lerna.json,target=lerna.json \
+    --mount=type=bind,source=package.json,rw,target=package.json \
+    --mount=type=bind,source=yarn.lock,target=yarn.lock \
+    --mount=type=bind,source=packages/shared/package.json,target=packages/shared/package.json \
+    --mount=type=bind,source=packages/shared/yarn.lock,target=packages/shared/yarn.lock \
+    --mount=type=bind,source=packages/healthy-studio/package.json,target=packages/healthy-studio/package.json \
+    --mount=type=bind,source=packages/healthy-studio/yarn.lock,target=packages/healthy-studio/yarn.lock \
+    yarn install --frozen-lockfile --update-checksums --non-interactive --ignore-scripts \
+    && yarn lerna exec --concurrency 1 "yarn install --production --frozen-lockfile --update-checksums --non-interactive --ignore-scripts"
+
+COPY --chown=app:app ./packages/healthy-studio/src/ ./packages/healthy-studio/src/
+COPY --chown=app:app ./packages/shared/src*/ ./packages/shared/src/
+
+RUN --mount=type=bind,source=lerna.json,target=lerna.json \
+    --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=packages/shared/package.json,target=packages/shared/package.json \
+    --mount=type=bind,source=packages/shared/tsconfig.json,target=packages/shared/tsconfig.json \
+    --mount=type=bind,source=packages/healthy-studio/package.json,target=packages/healthy-studio/package.json \
+    --mount=type=bind,source=packages/healthy-studio/tsconfig.json,target=packages/healthy-studio/tsconfig.json \
+    --mount=type=bind,source=packages/healthy-studio/tsconfig.build.json,target=packages/healthy-studio/tsconfig.build.json \
+     yarn build healthy-studio
+
+FROM node:18.17.1-alpine
+ARG HEALTHY_STUDIO_API_PORT
+WORKDIR /usr/src/app/
+
+COPY --from=base /usr/src/app/packages/shared/dist/ ./packages/shared/dist/
+COPY --from=base /usr/src/app/packages/shared/node_modules/ ./packages/shared/node_modules/
+COPY --from=base /usr/src/app/packages/healthy-studio/dist/ ./packages/healthy-studio/dist/
+COPY --from=base /usr/src/app/packages/healthy-studio/node_modules/ ./packages/healthy-studio/node_modules/
+
+HEALTHCHECK --interval=30s \
+    --timeout=2s \
+    --retries=10 \
+    CMD node packages/healthy-studio/dist/healthcheck.js
+
+EXPOSE $HEALTHY_STUDIO_API_PORT
+
+WORKDIR /usr/src/app/packages/healthy-studio/dist
+CMD ["node", "index.js"]
