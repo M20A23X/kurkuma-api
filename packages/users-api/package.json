@@ -1,0 +1,40 @@
+{
+  "name": "users-api",
+  "version": "0.0.1",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "build": "nest build",
+    "format": "prettier --write src/",
+    "lint": "eslint --cache src/",
+    "lint:fix": "eslint --fix src/",
+    "pre-commit": "lint-staged",
+    "pre-push": "yarn lint && yarn test:quick",
+    "start": "nest start",
+    "start:dev": "yarn start --watch",
+    "start:debug": "yarn start:dev --debug",
+    "start:prod": "node dist/index",
+    "test": "jest --passWithNoTests --runInBand --detectOpenHandles",
+    "test:coverage": "yarn test --coverage",
+    "test:quick": "yarn test --forceExit --no-cache --bail=1",
+    "test:watch": "yarn test --watch"
+  },
+  "dependencies": {
+    "@nestjs/axios": "^3.0.1",
+    "@nestjs/common": "^10.3.0",
+    "@nestjs/config": "^3.1.1",
+    "@nestjs/core": "^10.3.0",
+    "@nestjs/jwt": "^10.2.0",
+    "@nestjs/platform-express": "^10.3.0",
+    "@nestjs/swagger": "^7.1.17",
+    "@nestjs/terminus": "^10.2.0",
+    "axios": "^1.3.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
+    "reflect-metadata": "^0.1.12",
+    "rxjs": "^7.1.0"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^10.3.0"
+  }
+}
