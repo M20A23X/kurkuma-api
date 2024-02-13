@@ -4,14 +4,14 @@ networks:
     external: true
 
 services:
-  healthy-studio:
+  healthy-studio-api:
     extends:
       file: docker-compose.base.yml
-      service: healthy-studio
+      service: healthy-studio-api
     build:
-      dockerfile: docker/configs/healthy-studio/Dockerfile.prod
+      dockerfile: docker/configs/healthy-studio-api/Dockerfile.prod
     environment:
       NODE_ENV: prod
-    image: ${DOCKER_PREFIX}:healthy-studio
-    container_name: healthy-studio
+    image: ${DOCKER_PREFIX}:healthy-studio-api
+    container_name: healthy-studio-api
     command: node index.js

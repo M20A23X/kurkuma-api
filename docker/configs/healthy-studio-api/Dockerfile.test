@@ -7,8 +7,8 @@ RUN --mount=type=cache,target=~/AppData/Local/Yarn/Cache/v4 \
     --mount=type=bind,source=yarn.lock,target=yarn.lock \
     --mount=type=bind,source=packages/shared/package.json,target=packages/shared/package.json \
     --mount=type=bind,source=packages/shared/yarn.lock,target=packages/shared/yarn.lock \
-    --mount=type=bind,source=packages/healthy-studio/package.json,target=packages/healthy-studio/package.json \
-    --mount=type=bind,source=packages/healthy-studio/yarn.lock,target=packages/healthy-studio/yarn.lock \
+    --mount=type=bind,source=packages/healthy-studio-api/package.json,target=packages/healthy-studio-api/package.json \
+    --mount=type=bind,source=packages/healthy-studio-api/yarn.lock,target=packages/healthy-studio-api/yarn.lock \
     yarn install --frozen-lockfile --update-checksums --non-interactive --ignore-scripts \
     && yarn lerna exec --concurrency 1 "yarn install --frozen-lockfile --update-checksums --non-interactive --ignore-scripts"
 
@@ -18,13 +18,13 @@ WORKDIR /usr/src/app/packages/shared/
 COPY --chown=app:app ./packages/shared/package.json ./packages/shared/tsconfig.json ./
 COPY --chown=app:app ./packages/shared/src*/ ./src/
 
-WORKDIR /usr/src/app/packages/healthy-studio/
-COPY --chown=app:app ./packages/healthy-studio/package.json ./packages/healthy-studio/jest.config.js ./packages/healthy-studio/tsconfig.json ./
-COPY --chown=app:app ./packages/healthy-studio/src/ ./src/
-COPY --chown=app:app ./packages/healthy-studio/specs*/ ./specs/
+WORKDIR /usr/src/app/packages/healthy-studio-api/
+COPY --chown=app:app ./packages/healthy-studio-api/package.json ./packages/healthy-studio-api/jest.config.js ./packages/healthy-studio-api/tsconfig.json ./
+COPY --chown=app:app ./packages/healthy-studio-api/src/ ./src/
+COPY --chown=app:app ./packages/healthy-studio-api/specs*/ ./specs/
 
 FROM node:18.17.1-alpine
 WORKDIR /usr/src/app/
 
 COPY --from=base /usr/src/app/ .
-CMD ["yarn", "test:quick", "healthy-studio"]
+CMD ["yarn", "test:quick", "healthy-studio-api"]

@@ -8,7 +8,7 @@ on:
     branches: [ 'master', 'dev' ]
 
 env:
-  HEALTHY_STUDIO_API_IMAGE: ${{ vars.DOCKER_PREFIX }}:healthy-studio
+  HEALTHY_STUDIO_API_IMAGE: ${{ vars.DOCKER_PREFIX }}:healthy-studio-api
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
   # Common
@@ -57,7 +57,7 @@ jobs:
       - name: Check modified Healthy Studio API source files
         id: check
         shell: bash
-        run: bash scripts/check-files.sh healthy-studio
+        run: bash scripts/check-files.sh healthy-studio-api
 
   ci:
     name: Healthy Studio API CI
@@ -85,7 +85,7 @@ jobs:
         run: echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
 
       - name: Compose Healthy Studio API test
-        run: docker compose --verbose --file docker/docker-compose.test.yml --profile healthy-studio up --build --abort-on-container-exit
+        run: docker compose --verbose --file docker/docker-compose.test.yml --profile healthy-studio-api up --build --abort-on-container-exit
 
   cd:
     name: Healthy Studio API CD
@@ -99,7 +99,7 @@ jobs:
       - name: Build production Healthy Studio API image
         run: |
           docker build \
-            --file docker/configs/healthy-studio/Dockerfile.prod \
+            --file docker/configs/healthy-studio-api/Dockerfile.prod \
             --tag "${HEALTHY_STUDIO_API_IMAGE}-prod" \
             --build-arg HEALTHY_STUDIO_API_PORT=$HEALTHY_STUDIO_API_PORT \
             .
@@ -113,8 +113,8 @@ jobs:
       - name: Pull and run Healthy Studio API image on remote host
         uses: appleboy/ssh-action@v1.0.0
         env:
-          HEALTHY_STUDIO_API_IMAGE: ${{ vars.DOCKER_PREFIX }}:healthy-studio
-          HEALTHY_STUDIO_API_CONTAINER: healthy-studio
+          HEALTHY_STUDIO_API_IMAGE: ${{ vars.DOCKER_PREFIX }}:healthy-studio-api
+          HEALTHY_STUDIO_API_CONTAINER: healthy-studio-api
 
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}

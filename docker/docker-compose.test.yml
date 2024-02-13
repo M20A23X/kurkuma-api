@@ -4,17 +4,17 @@ networks:
     external: true
 
 services:
-  healthy-studio:
+  healthy-studio-api:
     extends:
       file: docker-compose.base.yml
-      service: healthy-studio
+      service: healthy-studio-api
     build:
-      dockerfile: docker/configs/healthy-studio/Dockerfile.test
+      dockerfile: docker/configs/healthy-studio-api/Dockerfile.test
     environment:
       NODE_ENV: test
       JWT_SECRET: ${JWT_SECRET}
       SPECS_DATA_AMOUNT: ${SPECS_DATA_AMOUNT}
       SPECS_HOOK_TIMEOUT_MS: ${SPECS_HOOK_TIMEOUT_MS}
-    image: ${DOCKER_PREFIX}:healthy-studio
-    container_name: healthy-studio-test
-    command: yarn test:quick healthy-studio
+    image: ${DOCKER_PREFIX}:healthy-studio-api
+    container_name: healthy-studio-api-test
+    command: yarn test:quick healthy-studio-api

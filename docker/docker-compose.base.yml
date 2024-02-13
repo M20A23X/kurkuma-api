@@ -1,6 +1,6 @@
 version: '3.4'
 services:
-  healthy-studio:
+  healthy-studio-api:
     build:
       context: ../
       args:
@@ -14,4 +14,4 @@ services:
       kurkuma-network:
         ipv4_address: ${HEALTHY_STUDIO_API_IP}
     profiles:
-      - healthy-studio
+      - healthy-studio-api
