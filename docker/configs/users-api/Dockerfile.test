@@ -1,0 +1,30 @@
+FROM node:18.17.1 as base
+WORKDIR /usr/src/app/
+
+RUN --mount=type=cache,target=~/AppData/Local/Yarn/Cache/v4 \
+    --mount=type=bind,source=lerna.json,target=lerna.json \
+    --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=yarn.lock,target=yarn.lock \
+    --mount=type=bind,source=packages/shared/package.json,target=packages/shared/package.json \
+    --mount=type=bind,source=packages/shared/yarn.lock,target=packages/shared/yarn.lock \
+    --mount=type=bind,source=packages/users-api/package.json,target=packages/users-api/package.json \
+    --mount=type=bind,source=packages/users-api/yarn.lock,target=packages/users-api/yarn.lock \
+    yarn install --frozen-lockfile --update-checksums --non-interactive --ignore-scripts \
+    && yarn lerna exec --concurrency 1 "yarn install --frozen-lockfile --update-checksums --non-interactive --ignore-scripts"
+
+COPY --chown=app:app ./package.json ./lerna.json ./jest.config.json ./
+
+WORKDIR /usr/src/app/packages/shared/
+COPY --chown=app:app ./packages/shared/package.json ./packages/shared/tsconfig.json ./
+COPY --chown=app:app ./packages/shared/src*/ ./src/
+
+WORKDIR /usr/src/app/packages/users-api/
+COPY --chown=app:app ./packages/users-api/package.json ./packages/users-api/jest.config.js ./packages/users-api/tsconfig.json ./
+COPY --chown=app:app ./packages/users-api/src/ ./src/
+COPY --chown=app:app ./packages/users-api/specs*/ ./specs/
+
+FROM node:18.17.1-alpine
+WORKDIR /usr/src/app/
+
+COPY --from=base /usr/src/app/ .
+CMD ["yarn", "test:quick", "users-api"]

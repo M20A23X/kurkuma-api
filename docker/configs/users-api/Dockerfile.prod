@@ -1,0 +1,44 @@
+FROM node:18.17.1 as base
+WORKDIR /usr/src/app/
+
+RUN --mount=type=cache,target=~/AppData/Local/Yarn/Cache/v4 \
+    --mount=type=bind,source=lerna.json,target=lerna.json \
+    --mount=type=bind,source=package.json,rw,target=package.json \
+    --mount=type=bind,source=yarn.lock,target=yarn.lock \
+    --mount=type=bind,source=packages/shared/package.json,target=packages/shared/package.json \
+    --mount=type=bind,source=packages/shared/yarn.lock,target=packages/shared/yarn.lock \
+    --mount=type=bind,source=packages/users-api/package.json,target=packages/users-api/package.json \
+    --mount=type=bind,source=packages/users-api/yarn.lock,target=packages/users-api/yarn.lock \
+    yarn install --frozen-lockfile --update-checksums --non-interactive --ignore-scripts \
+    && yarn lerna exec --concurrency 1 "yarn install --production --frozen-lockfile --update-checksums --non-interactive --ignore-scripts"
+
+COPY --chown=app:app ./packages/users-api/src/ ./packages/users-api/src/
+COPY --chown=app:app ./packages/shared/src*/ ./packages/shared/src/
+
+RUN --mount=type=bind,source=lerna.json,target=lerna.json \
+    --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=packages/shared/package.json,target=packages/shared/package.json \
+    --mount=type=bind,source=packages/shared/tsconfig.json,target=packages/shared/tsconfig.json \
+    --mount=type=bind,source=packages/users-api/package.json,target=packages/users-api/package.json \
+    --mount=type=bind,source=packages/users-api/tsconfig.json,target=packages/users-api/tsconfig.json \
+    --mount=type=bind,source=packages/users-api/tsconfig.build.json,target=packages/users-api/tsconfig.build.json \
+     yarn build users-api
+
+FROM node:18.17.1-alpine
+ARG USERS_API_PORT
+WORKDIR /usr/src/app/
+
+COPY --from=base /usr/src/app/packages/shared/dist/ ./packages/shared/dist/
+COPY --from=base /usr/src/app/packages/shared/node_modules/ ./packages/shared/node_modules/
+COPY --from=base /usr/src/app/packages/users-api/dist/ ./packages/users-api/dist/
+COPY --from=base /usr/src/app/packages/users-api/node_modules/ ./packages/users-api/node_modules/
+
+HEALTHCHECK --interval=30s \
+    --timeout=2s \
+    --retries=10 \
+    CMD node packages/users-api/dist/healthcheck.js
+
+EXPOSE $USERS_API_PORT
+
+WORKDIR /usr/src/app/packages/users-api/dist
+CMD ["node", "index.js"]

@@ -1,0 +1,17 @@
+version: '3.4'
+services:
+  users-api:
+    build:
+      context: ../
+      args:
+        USERS_API_PORT: ${USERS_API_PORT}
+    restart: always
+    environment:
+      USERS_API_HOST_HTTP: ${USERS_API_HOST_HTTP}
+    ports:
+      - ${USERS_API_PORT}:${USERS_API_PORT}
+    networks:
+      kurkuma-network:
+        ipv4_address: ${USERS_API_IP}
+    profiles:
+      - users-api

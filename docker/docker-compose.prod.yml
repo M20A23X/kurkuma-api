@@ -1,0 +1,17 @@
+version: '3.4'
+networks:
+  kurkuma-network:
+    external: true
+
+services:
+  users-api:
+    extends:
+      file: docker-compose.base.yml
+      service: users-api
+    build:
+      dockerfile: docker/configs/users-api/Dockerfile.prod
+    environment:
+      NODE_ENV: prod
+    image: ${DOCKER_PREFIX}:users-api
+    container_name: users-api
+    command: node index.js

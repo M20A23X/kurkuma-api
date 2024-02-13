@@ -1,0 +1,20 @@
+version: '3.4'
+networks:
+  kurkuma-network:
+    external: true
+
+services:
+  users-api:
+    extends:
+      file: docker-compose.base.yml
+      service: users-api
+    build:
+      dockerfile: docker/configs/users-api/Dockerfile.test
+    environment:
+      NODE_ENV: test
+      JWT_SECRET: ${JWT_SECRET}
+      SPECS_DATA_AMOUNT: ${SPECS_DATA_AMOUNT}
+      SPECS_HOOK_TIMEOUT_MS: ${SPECS_HOOK_TIMEOUT_MS}
+    image: ${DOCKER_PREFIX}:users-api
+    container_name: users-api-test
+    command: yarn test:quick users-api
